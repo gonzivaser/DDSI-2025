@@ -1,0 +1,28 @@
+@startuml
+
+class Cancion {
+    - String nombre
+    - Album album
+    - Integer anioDeLanzamiento
+
+    - Integer cantidadDeLikes
+    - Integer cantidadDeDislikes
+    - Integer cantidadDeReproducciones
+    - Tiempo ultimaReproduccion
+}
+
+class Artista {
+    - String nombre
+}
+
+class Album {
+    - String nombre
+    - Artista artista
+    - Integer anioDeLanzamiento
+}
+
+
+Cancion o--> Album
+Album o--> Artista
+
+@enduml
