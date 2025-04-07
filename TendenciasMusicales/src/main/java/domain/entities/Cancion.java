@@ -13,6 +13,8 @@ public class Cancion {
     private Integer cantidadDeDislikes;
     private Integer cantidadDeReproducciones;
     private LocalDateTime ultimaReproduccion;
+    // sumo icono de popularidad
+    private Popularidad popularidad;
 
     // INICIALIZO CANCION
     public Cancion(String nombre, Album album, Integer anioDeLanzamiento) {
@@ -22,14 +24,16 @@ public class Cancion {
         this.cantidadDeReproducciones = 0;
         this.cantidadDeDislikes = 0;
         this.cantidadDeLikes = 0;
+        // TODO: IMPLEMENTAR CLASES DE TIPO QUE IMPLEMENTEN LA INTERFAZ POPULARIDAD
+        //this.popularidad = new Normal();
     }
 
     // METODO DE SER REPRODUCIDA
     public String serEscuchada() {
         this.cantidadDeReproducciones++;
         this.ultimaReproduccion = LocalDateTime.now();
+        // TODO popularidad.actualizarPopularidad(this);
 
-        //TODO: resolver el detalle completo en base a la popularidad de la cancion, pensar como resolver para la semana que viene
         return "Detalle completo";
     }
 }
