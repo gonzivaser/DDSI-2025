@@ -9,6 +9,7 @@ class Cancion {
     - Integer cantidadDeDislikes
     - Integer cantidadDeReproducciones
     - Tiempo ultimaReproduccion
+    - Popularidad popularidad
 }
 
 class Artista {
@@ -21,8 +22,39 @@ class Album {
     - Integer anioDeLanzamiento
 }
 
+abstract class Popularidad {
+    # abstract leyenda(Cancion unaCancion) : String
+    # abstract reproducir(Cancion (Cancion unaCancion) : void
+    # abstract icono() : String
+}
+
+class Normal extends Popularidad {
+    - cantidadDeReproduccionesMinimaParaPasarEnAuge : Integer
+    - cantidadDeReproduccionesEnEstaPopularidad : Integer
+
+    + leyenda(Cancion unaCancion) : String
+    + reproducir(Cancion unaCancion) : void
+    + icono() : String
+}
+
+class EnAuge extends Popularidad {
+
+
+     + leyenda(Cancion unaCancion) : String
+     + reproducir(Cancion unaCancion) : void
+     + icono() : String
+}
+
+class EnTendencia extends Popularidad {
+}
+
 
 Cancion o--> Album
+Cancion *--> Popularidad
 Album o--> Artista
+Normal ..> EnAuge
+EnAuge ..> EnTendencia
+EnAuge ..> Normal
+EnTendencia ..> Normal
 
 @enduml

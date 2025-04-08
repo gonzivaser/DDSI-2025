@@ -1,4 +1,4 @@
-package domain.iconos;
+package domain.helpers;
 
 public class Icono {
     public static Icono MUSICAL_NOTE = new Icono(new int[]{0xD83C, 0xDFB5});

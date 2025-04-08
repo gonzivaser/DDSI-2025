@@ -1,4 +1,8 @@
 package domain.entities;
+import domain.email.EmailSender;
+import domain.ranking.RankingService;
+import domain.tendencias.Normal;
+import domain.tendencias.Popularidad;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
@@ -13,8 +17,10 @@ public class Cancion {
     private Integer cantidadDeDislikes;
     private Integer cantidadDeReproducciones;
     private LocalDateTime ultimaReproduccion;
-    // sumo icono de popularidad
     private Popularidad popularidad;
+
+    private EmailSender emailSender = null;
+    private RankingService rankingService = null;
 
     // INICIALIZO CANCION
     public Cancion(String nombre, Album album, Integer anioDeLanzamiento) {
@@ -24,16 +30,15 @@ public class Cancion {
         this.cantidadDeReproducciones = 0;
         this.cantidadDeDislikes = 0;
         this.cantidadDeLikes = 0;
-        // TODO: IMPLEMENTAR CLASES DE TIPO QUE IMPLEMENTEN LA INTERFAZ POPULARIDAD
-        //this.popularidad = new Normal();
+        this.popularidad = new Normal();
     }
 
     // METODO DE SER REPRODUCIDA
     public String serEscuchada() {
         this.cantidadDeReproducciones++;
+        this.popularidad.reproducir(this);
+        String descripcion = this.popularidad.detalle(this);
         this.ultimaReproduccion = LocalDateTime.now();
-        // TODO popularidad.actualizarPopularidad(this);
-
-        return "Detalle completo";
+        return descripcion;
     }
 }
