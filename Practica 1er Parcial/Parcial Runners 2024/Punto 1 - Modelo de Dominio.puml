@@ -1,0 +1,125 @@
+@startuml
+
+Class Runner {
+    - nombre : String
+    - apellido : String
+    - peso : Integer
+    - altura : Integer
+    - edad : Integer
+    - tipoDeSangre : String
+    - lesiones : List<Lesion>
+    - zapatillas : List<Zapatilla>
+    - zapatillaFavorita : Zapatilla
+}
+
+Class Lesion {
+    - nombreLesion : String
+    - especificacion : String
+}
+
+Class TipoZapatilla {
+    - marca : String
+    - modelo : String
+    - fotos : List<Fotografia>
+}
+
+Class Marca {
+    - nombre : String
+}
+
+Class Modelo {
+    - nombre : String
+}
+
+Class Fotografia {
+    - url : String
+}
+
+Class Zapatilla {
+    - tipoZapatilla : TipoZapatilla
+    - anioAdquisicion : Integer
+    - numeroDeTalle : Talle
+    - fotografias : List<Fotografia>
+    - cantidadDeKmRecorridos : Integer
+
+    + vidaUtil() : Integer
+}
+
+Class Talle {
+    - numero : Integer
+    - unidadDeMedida : UnidadDeMedida
+}
+
+enum UndiadDeMedida {
+    EU,
+    US,
+    UK
+}
+
+Class Travesia {
+    - nombre : String
+    - descripcionDetallada : String
+    - fotografias : Map<Fotografia, String>
+    - nivelDeDificultad : NivelDeDificultad
+    - tipoDeTerreno : TipoDeTerreno
+    - duracionEstimada : LocalDateTime
+    - distanciaTotal : Integer
+    - puntoDePartida : Lugar
+    - puntoDeSalida : Lugar
+    - puntosDeApoyo : List<PuntoDeApoyo>
+}
+
+enum NivelDeDificultad {
+    PRINCIPIANTE,
+    INTERMEDIO,
+    AVANZADO,
+    EXTREMO
+}
+
+Class TipoDeTerreno {
+    - nombre : String
+}
+
+Class Lugar {
+    - latitud : Integer
+    - longitud : Integer
+}
+
+Class PuntoDeApoyo {
+    - tipo : TipoDePuntoDeApoyo
+    - descripcion : String
+    - ubicacionGeografica : Lugar
+    - fotografias : List<Fotografia>
+}
+
+Class TipoDePuntoDeApoyo {
+    - nombre : String
+}
+
+Class Fondo {
+    - runner : Runner
+    - fecha : LocalDate
+    - travesia : Travesia
+    - necesidadesParticulares : TipoDePuntoDeApoyo
+    - zapatilla : Zapatilla
+
+    + obtenerZapatillaFavorita () : Zapatilla
+}
+
+Class Sugerencia {
+    - puntosDeApoyoAVisitar : List<PuntoDeApoyo>
+    - precaucionesDeSeguridad : List<MedidaDeSeguridad>
+    - recomendacionDeZapatillas : List<Recomendacion>
+}
+
+Class MedidaDeSeguridad {
+    - nombre : String
+    - descripcion : String
+}
+
+Class Recomendacion {
+    - runner : Runner
+    - zapatillasRecomendadas : List<>
+}
+
+@enduml

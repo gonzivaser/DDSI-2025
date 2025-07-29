@@ -1,0 +1,88 @@
+@startuml
+
+Class Motoquero {
+    - motos : List<Moto>
+    - categoria : Categoria
+    - kilometrosInicialesRecorridos : Integer
+
+    + recategorizar() : void
+}
+
+Class Moto {
+    - marca : String
+    - modelo : String
+    - año : Integer
+    - numeroDeMatricula : Integer
+    - fotografias : List<Fotografia>
+    - capacidadDeTanque : Int
+}
+
+Class Fotografia {
+    - rutaAlArchivo : String
+}
+
+Class CaminoNoConvencional {
+    - nombre : String
+    - descripcionDetallada : String
+    - fotografias : MapList<Fotografia, String>
+    - nivelDificultad : NivelDeDificultadDeCamino
+    - tipoDeTerreno : TipoDeTerreno
+    - duracionEstimada : Duracion //TODO
+    - distanciaTotal : Int
+    - puntoDePartida : Lugar
+    - puntoDeSalida : Lugar
+}
+
+Class TipoDeTerreno {
+    - tipo : String
+}
+
+enum NivelDeDificultadDeCamino {
+    PRINCIPIANTE,
+    INTERMEDIO,
+    AVANZADO,
+    EXTREMO
+}
+
+enum Categoria {
+    PRINCIPIANTE,
+    INTERMEDIO,
+    AVANZADO,
+    EXTREMO
+}
+
+Class PuntoDeInteres {
+    - tipo : TipoDeLugarDeInteres
+    - descripcion : String
+    - ubicacionGeografica : Lugar
+    - fotografias : List<Fotografia>
+}
+
+Class Lugar {
+    - latitud : Long
+    - longitud : Long
+}
+
+enum TipoDeLugarDeInteres {
+    MIRADORES,
+    LUGARES_HISTORICOS,
+    RESTAURANTES_BARES,
+    ESTACIONES_DE_SERVICIO,
+    TALLERES_MECANICOS
+}
+
+Class PlanificacionDeViaje {
+    - motoquero : Motoquero
+    - fechaDelViaje : LocalDate
+    - caminoSeleccionado : CaminoNoConvencional
+    - intereses : List<TipoDeLugarDeInteres>
+    - motoSeleccionada : Moto
+}
+
+Class Recomendacion {
+    - lugaresAVisitar : List<PuntoDeInteres>
+    - precaucionSegunClima : String
+    - tipsDeSeguridad
+}
+
+@enduml
