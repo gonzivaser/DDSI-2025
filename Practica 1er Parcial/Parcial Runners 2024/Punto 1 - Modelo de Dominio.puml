@@ -6,10 +6,22 @@ Class Runner {
     - peso : Integer
     - altura : Integer
     - edad : Integer
-    - tipoDeSangre : String
+    - tipoDeSangre : TipoDeSangre
     - lesiones : List<Lesion>
     - zapatillas : List<Zapatilla>
     - zapatillaFavorita : Zapatilla
+    - capacidadFisica : Integer
+}
+
+enum TipoDeSangre {
+    A+,
+    A-,
+    B+,
+    B-,
+    AB+,
+    AB-,
+    0+,
+    0-
 }
 
 Class Lesion {
@@ -18,8 +30,8 @@ Class Lesion {
 }
 
 Class TipoZapatilla {
-    - marca : String
-    - modelo : String
+    - marca : Marca
+    - modelo : Modelo
     - fotos : List<Fotografia>
 }
 
@@ -102,14 +114,22 @@ Class Fondo {
     - travesia : Travesia
     - necesidadesParticulares : TipoDePuntoDeApoyo
     - zapatilla : Zapatilla
+    - estado : EstadoDeFondo
 
     + obtenerZapatillaFavorita () : Zapatilla
 }
 
+enum EstadoDeFondo {
+    PLANIFICADO,
+    FINALIZADO
+}
+
 Class Sugerencia {
+    - fondo : Fondo
     - puntosDeApoyoAVisitar : List<PuntoDeApoyo>
     - precaucionesDeSeguridad : List<MedidaDeSeguridad>
-    - recomendacionDeZapatillas : List<Recomendacion>
+
+    + lugaresDeApoyo() : List<PuntoDeApoyo>
 }
 
 Class MedidaDeSeguridad {
@@ -119,7 +139,155 @@ Class MedidaDeSeguridad {
 
 Class Recomendacion {
     - runner : Runner
-    - zapatillasRecomendadas : List<>
+    - zapatillasRecomendadas : List<TipoZapatilla>
+    - recomendacionZapatillas : IRecomendacionDeZapatillas
+
+    + agregarZapatillasARecomendar() : void
 }
+
+interface IRecomendacionDeZapatillas {
+    + obtenerRecomendacion(Runner unRunner) : List<TipoZapatilla>
+}
+
+Class AdapterTECHShoes implements IRecomendacionDeZapatillas {
+    - api : TECHShoes
+
+    + obtenerRecomendacion(Runner unRunner) : List<TipoZapatilla>
+    + mapearResponseTECHShoesATipoZapatilla() : TipoZapatilla
+}
+
+Class TECHShoes {
+    + obtenerZapatillas() : List<ZapatillaAPITECHShoes>
+}
+
+Class ZapatillaAPITECHShoes {
+    - shoe_id : Integer
+    - brand : String
+    - model : String
+    - sizes : List<Talle>
+    - photos : List<Fotografia>
+}
+
+interface ICalculoDePesoMochila {
+    + calcularCarga(Runner unRunner, Fondo unFondo) : Integer
+}
+
+Class CalculoOptimista implements ICalculoDePesoMochila {
+    + calcularCarga(Runner unRunner, Fondo unFondo) : Integer
+}
+
+Class CalculoPesimista implements ICalculoDePesoMochila {
+    + calcularCarga(Runner unRunner, Fondo unFondo) : Integer
+}
+
+Class Articulo {
+    - nombre : String
+    - peso : Integer
+    - categoria : Categoria
+}
+
+Class Categoria {
+    - nombre : String
+    - descripcion : String
+}
+
+Class RecomendacionDeArticulos {
+    - runner : Runner
+    - fondo : Fondo
+    - calculo : ICalculoDePesoMochila
+
+    + calcularPesoMaximo() : Integer
+    + recomendarArticulos() : List<Articulo>
+}
+
+Class FeedbackDeTravesia {
+    - fondo : Fondo
+    - opcion : TipoDeOpcion
+    - preguntas : List<Pregunta>
+    - respuestas : List<Respuesta>
+}
+
+enum TipoDeOpcion {
+    EXCELENTE,
+    BUENO,
+    INTERMEDIO,
+    DEBERIA_MEJORAR
+}
+
+Class Pregunta {
+    - tipoDePregunta : TipoDePregunta
+    - preguntaRealizada : String
+}
+
+Class Respuesta {
+    - pregunta : Pregunta
+    - respuesta : String
+}
+
+enum TipoDePregunta {
+    SELECCIONAR_CORRESPONDIENTES,
+    PREGUNTA_CERRADA,
+    TEXTO
+}
+
+Runner o-- Zapatilla : "*"
+Runner o-- Lesion
+Runner o-- TipoDeSangre
+
+Travesia *-- Fotografia
+Travesia --> NivelDeDificultad
+Travesia *-- Lugar
+Travesia --> PuntoDeApoyo : "*"
+Travesia --> TipoDeTerreno
+
+PuntoDeApoyo *-- Lugar
+PuntoDeApoyo *-- Fotografia : "*"
+PuntoDeApoyo --> TipoDePuntoDeApoyo
+
+Fondo o-- Runner
+Fondo o-- Travesia
+Fondo --> TipoDePuntoDeApoyo
+Fondo --> Zapatilla
+Fondo -r-> EstadoDeFondo
+
+Zapatilla *-- TipoZapatilla
+Zapatilla --> Talle
+Zapatilla *-- Fotografia
+
+TipoZapatilla *-- Fotografia
+TipoZapatilla *-- Marca
+TipoZapatilla *-- Modelo
+
+Talle --> UndiadDeMedida
+
+FeedbackDeTravesia --> Fondo
+FeedbackDeTravesia --> TipoDeOpcion
+FeedbackDeTravesia o-- Pregunta : "*"
+FeedbackDeTravesia o-- Respuesta : "*"
+
+Pregunta --> TipoDePregunta
+
+Respuesta --> Pregunta
+
+Articulo --> Categoria
+
+RecomendacionDeArticulos ..> Articulo
+RecomendacionDeArticulos o-- Runner
+RecomendacionDeArticulos o-- Fondo
+RecomendacionDeArticulos --> ICalculoDePesoMochila
+
+Recomendacion o-- Runner
+Recomendacion o-- TipoZapatilla : "*"
+Recomendacion --> IRecomendacionDeZapatillas
+
+AdapterTECHShoes --> TECHShoes
+AdapterTECHShoes ..> Runner
+
+TECHShoes ..> ZapatillaAPITECHShoes
+
+Sugerencia --> Fondo
+Sugerencia o-- PuntoDeApoyo : "*"
+Sugerencia o-- MedidaDeSeguridad : "*"
+
 
 @enduml
