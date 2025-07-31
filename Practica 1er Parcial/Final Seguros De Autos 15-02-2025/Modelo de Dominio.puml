@@ -1,0 +1,211 @@
+@startuml
+
+class Vehiculo {
+    - marca : String
+    - modelo : String
+    - anioDeFabricacion : Integer
+    - numeroDeChasis : Integer
+    - dominio : Integer
+    - historialModificaciones : List<HistorialDeModificacion>
+    - poliza : Poliza
+    - zonaHabitual : ZonaHabitual
+
+    + darDeBaja() : void
+}
+
+class HistorialDeModificacion {
+    - fecha : LocalDate
+    - detalle : String
+}
+
+class Poliza {
+    - numero : Integer
+    - fechaDeEmision : LocalDate
+    - categoria : Categoria
+    - estado : EstadoPoliza
+    - costo : Integer
+}
+
+enum EstadoPoliza {
+    EMITIDA,
+    PENDIENTE_REVISION,
+    RECHAZADA
+}
+
+enum Categoria {
+    AUTO_PARTICULAR,
+    CAMIONETA_DE_CARGA,
+    MOTOCICLETA_URBANA,
+    TAXI_REMIS
+}
+
+class Cliente {
+    - polizas : List<Poliza>
+    - nombre : String
+    - apellido : String
+    - CUIT : Integer
+    - condicionAnteIVA : String
+    - medioDeContacto : Contacto
+}
+
+class Contacto {
+    - email : String
+    - telefono : Integer
+    - whatsapp : Integer
+}
+
+class SolicitudDePoliza {
+    - cliente : Cliente
+    - categoriaElegida : Categoria
+    - nivelDeCobertura : NivelDeCobertura
+    - ubicacionActualDeVehiculo : Ubicacion
+}
+
+class NivelDeCobertura {
+    - nombre : String
+    - descripcion : String
+}
+
+class Ubicacion {
+    - latitud : Long
+    - longitud : Long
+}
+
+class CalculadorDeValorDePoliza {
+    - calculador : List<ICalculador>
+    - poliza : Poliza
+
+    + calcularValorTotal() : Integer
+}
+
+class ContextoCalculoPoliza {
+    - vehiculo : Vehiculo
+    - ubicacion : Ubicacion
+    - cliente : Cliente
+}
+
+interface ICalculador {
+    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+}
+
+class CalculadorSegunCaracteristicas implements ICalculador {
+    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+}
+
+class CalculadorPorNivelDeRiesgo implements ICalculador {
+    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+}
+
+class CalculadorPorReparacion implements ICalculador {
+    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+}
+
+class CalculadorPorSiniestros implements ICalculador {
+    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+}
+
+class GestorDeSolicitud {
+    - solicitudesDePoliza : List<SolicitudDePoliza>
+    - criterios : List<Criterio>
+
+    + cumpleCriterios() : void
+}
+
+interface Criterio {
+    + esValido(SolicitudDePoliza unaSolicitud) : Boolean
+}
+
+class CriterioPorAnio implements Criterio {
+    + esValido(SolicitudDePoliza unaSolicitud) : Boolean
+}
+
+class CriterioPorKm implements Criterio {
+    + esValido(SolicitudDePoliza unaSolicitud) : Boolean
+}
+
+class Siniestro {
+    - cliente : Cliente
+    - poliza : Poliza
+    - tipo : TipoDeSiniestro
+    - fecha : LocalDate
+    - ubicacion : Ubicacion
+    - descripcion : String
+    - archivos : List<Archivo>
+    - estado : EstadoDeSolicitudDeSiniestro
+
+    + registrarSiniestro() : void
+}
+
+class Archivo {
+    - url : String
+}
+
+enum TipoDeSiniestro {
+    ACCIDENTE,
+    ROBO,
+    DAÑO
+}
+
+enum EstadoDeSolicitudDeSiniestro {
+    ACEPTADO,
+    PENDIENTE_EVALUACION,
+    RECHAZADO
+}
+
+class AlertaUbicacion {
+    - fechaHora : LocalDateTime
+    - ultimaUbicacion : Ubicacion
+    - poliza : Poliza
+}
+
+class GestorDeUbicacion {
+    - vehiculos : List<Vehiculo>
+
+    + procesarUbicacion(Ubicacion unaUbicacion) : void
+}
+
+class ZonaHabitual {
+    - centro : Ubicacion
+    - radioKm : Double
+}
+
+Vehiculo --> Poliza
+Vehiculo --> HistorialDeModificacion
+Vehiculo --> ZonaHabitual
+
+ZonaHabitual --> Ubicacion
+
+Poliza o-- Categoria
+Poliza o-- EstadoPoliza
+
+Cliente --> Poliza : "*"
+Cliente --> Contacto
+
+Siniestro --> Cliente
+Siniestro --> Poliza
+Siniestro o-- TipoDeSiniestro
+Siniestro --> Ubicacion
+Siniestro --> Archivo : "*"
+Siniestro o-- EstadoDeSolicitudDeSiniestro
+
+SolicitudDePoliza --> Cliente
+SolicitudDePoliza --> Categoria
+SolicitudDePoliza --> NivelDeCobertura
+SolicitudDePoliza --> Ubicacion
+
+AlertaUbicacion --> Poliza
+AlertaUbicacion --> Ubicacion
+
+ContextoCalculoPoliza --> Ubicacion
+ContextoCalculoPoliza --> Vehiculo
+ContextoCalculoPoliza --> Cliente
+
+CalculadorDeValorDePoliza --> ICalculador : "*"
+CalculadorDeValorDePoliza --> Poliza
+
+GestorDeSolicitud --> SolicitudDePoliza : "*"
+GestorDeSolicitud --> Criterio
+
+GestorDeUbicacion --> Vehiculo : "*"
+
+@enduml

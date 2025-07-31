@@ -1,0 +1,73 @@
+@startuml
+
+class Inmueble {
+    - tipoInmueble : TipoInmueble
+    - tipoOperacion : TipoOperacion
+    - ubicacion : Ubicacion
+    - ambientes : Integer
+    - fotos : List<Fotografia>
+}
+
+enum TipoInmueble {
+    CASA,
+    DEPARTAMENTO
+}
+
+enum TipoOperacion {
+    ALQUILER,
+    VENTA
+}
+
+class Ubicacion {
+    - latitud : Long
+    - longitud : Long
+}
+
+class Fotografia {
+    - url : String
+}
+
+class Publicacion {
+    - inmueble : Inmueble
+    - disponibilidad : Bool
+    - formasDePago : FormaDePago
+    - redesSociales : List<RedSocial>
+
+    + actualizarContenido() : void
+}
+
+class FormaDePago {
+    - nombre : String
+    - descripcion : String
+}
+
+class RedSocial {
+    - nombre : String
+    - descripcion : String
+}
+
+class PublicacionExterna {
+    - publicacionInternaAsociada : Publicacion
+    - redSocial : RedSocial
+    - id : Integer
+    - titulo : String
+    - descripcion : String
+    - fechaCreacion : LocalDate
+    - estadisticas : EstadisticasDePublicacion
+}
+
+class EstadisticasDePublicacion {
+     - cantidadComentarios : Integer
+     - rePublicaciones : Integer
+     - visualizaciones : Integer
+     - likes : Integer
+}
+
+class SuscripcionWebHook {
+    - urlConfigurable : String
+}
+
+class Puntuador {
+}
+
+@enduml
