@@ -1,38 +1,57 @@
 @startuml
 
 class Vehiculo {
-    - marca : String
-    - modelo : String
-    - anioDeFabricacion : Integer
-    - numeroDeChasis : Integer
-    - dominio : Integer
-    - historialModificaciones : List<HistorialDeModificacion>
+    - datosVehiculo : DatosVehiculo
     - poliza : Poliza
-    - zonaHabitual : ZonaHabitual
+    - historialCobertura : List<HistorialDeCobertura>
 
     + darDeBaja() : void
 }
 
-class HistorialDeModificacion {
-    - fecha : LocalDate
-    - detalle : String
+class DatosVehiculo {
+    - marca : Marca
+    - modelo : Modelo
+    - categoria : Categoria
+    - anioDeFabricacion : Integer
+    - numeroDeChasis : Integer
+    - dominio : String
+}
+
+class Marca {
+    - nombre : String
+}
+
+class Modelo {
+    - nombre : String
+}
+
+class Categoria {
+    - nombre : String
 }
 
 class Poliza {
+    - vehiculo : Vehiculo
     - numero : Integer
     - fechaDeEmision : LocalDate
-    - categoria : Categoria
-    - estado : EstadoPoliza
-    - costo : Integer
+    - categoria : TipoDeCategoria
+    - calculadorDePoliza : CalculadorDePoliza
+    - estadoPoliza : EstadoDePoliza
+    - zonaHabitual : ZonaHabitual
+
+    + cotizarValorDePoliza() : Double
 }
 
-enum EstadoPoliza {
+enum EstadoDePoliza {
     EMITIDA,
-    PENDIENTE_REVISION,
-    RECHAZADA
+    PENDIENTE_REVISION
 }
 
-enum Categoria {
+class HistorialDeCobertura {
+    - fechaModificacion : LocalDate
+    - detalle : String
+}
+
+enum TipoDeCategoria {
     AUTO_PARTICULAR,
     CAMIONETA_DE_CARGA,
     MOTOCICLETA_URBANA,
@@ -44,11 +63,16 @@ class Cliente {
     - nombre : String
     - apellido : String
     - CUIT : Integer
-    - condicionAnteIVA : String
-    - medioDeContacto : Contacto
+    - condicionIVA : CondicionIVA
+    - medioDeContacto : MedioDeContacto
 }
 
-class Contacto {
+class CondicionIVA {
+    - nombre : String
+    - descripcion : String
+}
+
+class MedioDeContacto {
     - email : String
     - telefono : Integer
     - whatsapp : Integer
@@ -56,14 +80,17 @@ class Contacto {
 
 class SolicitudDePoliza {
     - cliente : Cliente
-    - categoriaElegida : Categoria
-    - nivelDeCobertura : NivelDeCobertura
-    - ubicacionActualDeVehiculo : Ubicacion
+    - nivelDeCobertura : Cobertura
+    - ubicacionHabitual : Ubicacion
+    - categoria : TipoDeCategoria
+    - condiciones : List<ICondicion>
+
+    + esAsegurable() : Boolean
 }
 
-class NivelDeCobertura {
-    - nombre : String
-    - descripcion : String
+class Cobertura {
+    -nombre: String
+    -descripcion: String
 }
 
 class Ubicacion {
@@ -71,97 +98,63 @@ class Ubicacion {
     - longitud : Long
 }
 
-class CalculadorDeValorDePoliza {
-    - calculador : List<ICalculador>
-    - poliza : Poliza
+class CalculadorDePoliza {
+    - serviciosExternos : List<IServicioExternoDeCalculo>
+    - cantidadDeSiniestros : Integer
 
-    + calcularValorTotal() : Integer
+    + calcularPoliza(Vehiculo unVehiculo) : Double
 }
 
-class ContextoCalculoPoliza {
-    - vehiculo : Vehiculo
-    - ubicacion : Ubicacion
-    - cliente : Cliente
+interface IServicioExternoDeCalculo {
+    + calcularValor(Vehiculo unVehiculo) : Double
 }
 
-interface ICalculador {
-    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+class AdapterServicio1 implements IServicioExternoDeCalculo {
+    - servicio1API : Servicio1API
+
+    + calcularValor(Vehiculo unVehiculo)) : Double
 }
 
-class CalculadorSegunCaracteristicas implements ICalculador {
-    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+class Servicio1API {
+    + ejecutarCalculo(Integer unAnio, Marca unaMarca, Modelo unModelo) : Double
 }
 
-class CalculadorPorNivelDeRiesgo implements ICalculador {
-    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+class AdapterServicio2 implements IServicioExternoDeCalculo {
+    - servicio2API : Servicio2API
+
+    + calcularValor(Vehiculo unVehiculo)) : Double
 }
 
-class CalculadorPorReparacion implements ICalculador {
-    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+class Servicio2API {
+    + ejecutarCalculo(Integer indiceDeRobo, Integer accidentes, Integer desastresNaturales) : Double
 }
 
-class CalculadorPorSiniestros implements ICalculador {
-    + calcularValor(ContextoCalculoPoliza contexto) : Integer
+class AdapterServicio3 implements IServicioExternoDeCalculo {
+    - servicio3API : Servicio3API
+
+    + calcularValor(Vehiculo unVehiculo)) : Double
 }
 
-class GestorDeSolicitud {
-    - solicitudesDePoliza : List<SolicitudDePoliza>
-    - criterios : List<Criterio>
-
-    + cumpleCriterios() : void
+class Servicio3API {
+    + ejecutarCalculo(Integer costoPromedio) : Double
 }
 
-interface Criterio {
-    + esValido(SolicitudDePoliza unaSolicitud) : Boolean
+interface ICondicion {
+    + cumpleCondicion() : Boolean
 }
 
-class CriterioPorAnio implements Criterio {
-    + esValido(SolicitudDePoliza unaSolicitud) : Boolean
+class CondicionPorAnio implements ICondicion {
+    + cumpleCondicion() : Boolean
 }
 
-class CriterioPorKm implements Criterio {
-    + esValido(SolicitudDePoliza unaSolicitud) : Boolean
+class CondicionPorKM implements ICondicion {
+    + cumpleCondicion() : Boolean
 }
 
-class Siniestro {
-    - cliente : Cliente
-    - poliza : Poliza
-    - tipo : TipoDeSiniestro
-    - fecha : LocalDate
-    - ubicacion : Ubicacion
-    - descripcion : String
-    - archivos : List<Archivo>
-    - estado : EstadoDeSolicitudDeSiniestro
-
-    + registrarSiniestro() : void
-}
-
-class Archivo {
-    - url : String
-}
-
-enum TipoDeSiniestro {
-    ACCIDENTE,
-    ROBO,
-    DAÑO
-}
-
-enum EstadoDeSolicitudDeSiniestro {
-    ACEPTADO,
-    PENDIENTE_EVALUACION,
-    RECHAZADO
-}
-
-class AlertaUbicacion {
+class AlertaDeUbicacion {
     - fechaHora : LocalDateTime
-    - ultimaUbicacion : Ubicacion
+    - ubicacionDeAlerta : Ubicacion
     - poliza : Poliza
-}
-
-class GestorDeUbicacion {
-    - vehiculos : List<Vehiculo>
-
-    + procesarUbicacion(Ubicacion unaUbicacion) : void
 }
 
 class ZonaHabitual {
@@ -169,43 +162,40 @@ class ZonaHabitual {
     - radioKm : Double
 }
 
+Vehiculo --> DatosVehiculo
 Vehiculo --> Poliza
-Vehiculo --> HistorialDeModificacion
-Vehiculo --> ZonaHabitual
+Vehiculo --> HistorialDeCobertura : "*"
+
+DatosVehiculo --> Marca
+DatosVehiculo --> Modelo
+DatosVehiculo --> Categoria
+
+Poliza --> Vehiculo
+Poliza --> TipoDeCategoria
+Poliza --> CalculadorDePoliza
+Poliza --> EstadoDePoliza
+Poliza --> ZonaHabitual
 
 ZonaHabitual --> Ubicacion
 
-Poliza o-- Categoria
-Poliza o-- EstadoPoliza
+CalculadorDePoliza --> IServicioExternoDeCalculo
+
+AdapterServicio1 --> Servicio1API
+AdapterServicio2 --> Servicio2API
+AdapterServicio3 --> Servicio3API
 
 Cliente --> Poliza : "*"
-Cliente --> Contacto
-
-Siniestro --> Cliente
-Siniestro --> Poliza
-Siniestro o-- TipoDeSiniestro
-Siniestro --> Ubicacion
-Siniestro --> Archivo : "*"
-Siniestro o-- EstadoDeSolicitudDeSiniestro
+Cliente --> CondicionIVA
+Cliente --> MedioDeContacto
 
 SolicitudDePoliza --> Cliente
-SolicitudDePoliza --> Categoria
-SolicitudDePoliza --> NivelDeCobertura
+SolicitudDePoliza --> Cobertura
 SolicitudDePoliza --> Ubicacion
+SolicitudDePoliza --> TipoDeCategoria
+SolicitudDePoliza --> ICondicion : "*"
 
-AlertaUbicacion --> Poliza
-AlertaUbicacion --> Ubicacion
+AlertaDeUbicacion --> Poliza
+AlertaDeUbicacion --> Ubicacion
 
-ContextoCalculoPoliza --> Ubicacion
-ContextoCalculoPoliza --> Vehiculo
-ContextoCalculoPoliza --> Cliente
-
-CalculadorDeValorDePoliza --> ICalculador : "*"
-CalculadorDeValorDePoliza --> Poliza
-
-GestorDeSolicitud --> SolicitudDePoliza : "*"
-GestorDeSolicitud --> Criterio
-
-GestorDeUbicacion --> Vehiculo : "*"
 
 @enduml

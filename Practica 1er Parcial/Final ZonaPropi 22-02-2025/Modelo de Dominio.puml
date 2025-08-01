@@ -1,0 +1,279 @@
+@startuml
+
+class Propiedad {
+    - ubicacion : Ubicacion
+    - caracteristicasGernerales : CaracteristicaGeneral
+    - detallesAdicionales : DetalleAdicional
+    - precio : Precio
+    - multimedia : List<Multimedia>
+    - historialModificaciones : List<HistorialModificacion>
+}
+
+class Ubicacion {
+    - direccion : String
+    - barrio : String
+    - ciudad : String
+    - provincia : String
+}
+
+class CaracteristicaGeneral {
+    - tipoDePropiedad : TipoDePropiedad
+    - cantidadAmbientes : Integer
+    - cantidadBaños : Integer
+    - cantidadDormitorios : Integer
+    - metrosCuadradosCubiertos : Integer
+    - metrosCuadradosTotales : Integer
+}
+
+class DetalleAdicional {
+    - antiguedad : Integer
+    - estadoDePropiedad : EstadoDePropiedad
+    - aceptaMascotas : Boolean
+    - cantidadDeCocheras : Integer
+}
+
+enum EstadoDePropiedad {
+    A_ESTRENAR,
+    USADO,
+    EN_CONSTRUCCION
+}
+
+class Precio {
+    - precioDeVenta : Integer
+    - precioDeAlquiler : Integer
+    - esNegociable : Boolean
+}
+
+class Multimedia {
+    - url : String
+}
+
+class HistorialModificacion {
+    - fechaHora : LocalDateTime
+    - precio : Precio
+    - descripcion : String
+}
+
+class TipoDePropiedad {
+    - nombreDeTipo : String
+}
+
+abstract class Usuario {
+    - nombre : String
+    - correo : String
+    - telefono : Integer
+    - publicaciones : List<Publicacion>
+    - planAccedido : PlanSuscripcion
+    - medioDePago : MedioDePago
+}
+
+class UsuarioParticular extends Usuario {
+    - dni : Integer
+    - apellido : String
+}
+
+class UsuarioDeInmobiliarias extends Usuario {
+    - CUIT : Integer
+    - representanteLegal : RepresentanteLegal
+}
+
+class RepresentanteLegal {
+    - nombre : String
+    - DNI : Integer
+    - telefono : Integer
+}
+
+class Publicacion {
+    - tipoDeOperacion : TipoDeOperacion
+    - propiedad : Propiedad
+    - descripcionDetallada : String
+    - ubicacion : UbicacionGeografica
+    - precio : PrecioPublicacion
+    - multimedia : List<Multimedia>
+    - tags : List<Tag>
+    - estado : EstadoDePublicacion
+}
+
+class Tag {
+    - nombre : String
+    - descripcion : String
+}
+
+enum TipoDeOperacion {
+    VENTA,
+    ALQUILER,
+    ALQUILER_TEMPORARIO
+}
+
+class UbicacionGeografica {
+    - latitud : Long
+    - longitud : Long
+}
+
+class PrecioPublicacion {
+    - moneda : TipoDeMoneda
+    - valor : Integer
+}
+
+enum TipoDeMoneda {
+    ARS,
+    USD
+}
+
+enum EstadoDePublicacion {
+    ACTIVA_VISIBLE,
+    PAUSADA_NOVISIBLE,
+    PENDIENTE_REVISION,
+    FINALIZADA
+}
+
+class Consulta {
+    - publicacion : Publicacion
+    - formularios : List<Formulario>
+    - estadoConsulta : EstadoDeConsulta
+
+    + cambiarEstado() : void
+}
+
+enum EstadoDeConsulta {
+    RESPONDIDA,
+    ARCHIVADA
+}
+
+class Formulario {
+    - datosInteresado : DatosInteresado
+    - mensaje : String
+    - fechaHora : LocalDateTime
+}
+
+class DatosInteresado {
+    - nombreInteresado : String
+    - apellidoInteresado : String
+    - correoInteresado : String
+    - telefonoInteresado : Integer
+}
+
+class GestorDePublicaciones {
+    - publicacion : List<Publicacion>
+    - moderador : IModeradorDeContenido
+
+    + puedePublicar() : Boolean
+    + cumpleCriterioDeModerador() : Boolean
+}
+
+class MedioDePago {
+    - pago : IPagos
+    - medioDePago : String
+}
+
+interface IPagos {
+    + pagar() : void
+}
+
+class AdapterGeoPagos implements IPagos {
+    - geoPagosAPI : GeoPagosAPI
+
+    + pagar() : void
+}
+
+class GeoPagosAPI {
+    - url : String
+
+    + ejecutarPago() : void
+}
+
+interface IModeradorDeContenido {
+   + evaluar(Publicacion unaPublicacion) : ResultadoDeModeracion
+}
+
+class AdapterOpenAIModerador implements IModeradorDeContenido {
+    - openAIAPI : OpenAIAPI
+
+    + evaluar(Publicacion unaPublicacion) : ResultadoDeModeracion
+}
+
+class OpenAIAPI {
+    - url : String
+
+    + analizarPublicacion(String unPrompt) : ResponseOpenAIAPI
+}
+
+class ResponseOpenAIAPI {
+    - calidad_contenido : String
+    - palabrasOfensivas : Integer
+    - publicidadEngañosa : String
+}
+
+class ResultadoDeModeracion {
+    - calidadContenido : Calidad
+    - palabrasOfensivas : Integer
+    - publicidadEngañosa : Double
+}
+
+enum Calidad {
+    EXCELENTE,
+    BUENO,
+    REGULAR
+}
+
+class PlanSuscripcion {
+    - tipoDePlan : TipoDePlan
+    - horasDeVisibilidadMaxima : Integer
+    - cantidadPublicacionesMaximaPorMes : Integer
+}
+
+enum TipoDePlan {
+    GRATUITO,
+    DESTACADO,
+    PREMIUM
+}
+
+Propiedad --> Ubicacion
+Propiedad --> CaracteristicaGeneral
+Propiedad --> DetalleAdicional
+Propiedad --> Precio
+Propiedad --> Multimedia : "*"
+Propiedad --> HistorialModificacion : "*"
+
+CaracteristicaGeneral o-- TipoDePropiedad
+
+DetalleAdicional o-- EstadoDePropiedad
+
+HistorialModificacion --> Precio
+
+Usuario --> Publicacion : "*"
+Usuario --> PlanSuscripcion
+Usuario --> MedioDePago
+
+PlanSuscripcion o-- TipoDePlan
+
+MedioDePago --> IPagos
+
+AdapterGeoPagos --> GeoPagosAPI
+
+Publicacion o-- TipoDeOperacion
+Publicacion --> Propiedad
+Publicacion --> UbicacionGeografica
+Publicacion --> PrecioPublicacion
+Publicacion --> Multimedia : "*"
+Publicacion --> Tag : "*"
+Publicacion o-- EstadoDePublicacion
+
+PrecioPublicacion o-- TipoDeMoneda
+
+Consulta --> Publicacion
+Consulta --> Formulario : "*"
+Consulta o-- EstadoDeConsulta
+
+Formulario --> DatosInteresado
+
+GestorDePublicaciones --> Publicacion : "*"
+GestorDePublicaciones --> IModeradorDeContenido
+
+AdapterOpenAIModerador --> OpenAIAPI
+AdapterOpenAIModerador ..> ResultadoDeModeracion
+
+OpenAIAPI ..> ResponseOpenAIAPI
+
+
+@enduml
