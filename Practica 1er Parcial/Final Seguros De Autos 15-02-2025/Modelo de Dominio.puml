@@ -162,6 +162,19 @@ class ZonaHabitual {
     - radioKm : Double
 }
 
+class ReceptorGPS {
+    - vehiculo : Vehiculo
+
+    + decodificarDatos(String ubicacion) : Ubicacion
+    + existeAlerta() : Boolean
+}
+
+class GPS {
+    - receptor : ReceptorGPS
+
+    + recibirDatos(String ubicacion) : void
+}
+
 Vehiculo --> DatosVehiculo
 Vehiculo --> Poliza
 Vehiculo --> HistorialDeCobertura : "*"
@@ -197,5 +210,8 @@ SolicitudDePoliza --> ICondicion : "*"
 AlertaDeUbicacion --> Poliza
 AlertaDeUbicacion --> Ubicacion
 
+GPS --> ReceptorGPS
+
+ReceptorGPS --> Vehiculo
 
 @enduml
