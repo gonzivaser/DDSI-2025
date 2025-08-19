@@ -1,0 +1,215 @@
+@startuml
+
+class Entidad {
+    - id : Integer
+    - denominacionLegal : String
+    - demoraAproximada : Integer
+    - fechaAltaIGJ : LocalDate
+    - fechaAltaSistema : LocalDate
+    - tramites : List<Tramite>
+    - responsables : List<ResponsableDeEntidad>
+
+    + agregarTramite() : void
+    + eliminarTramite() : void
+}
+
+class ResponsableDeEntidad {
+    - id : Integer
+    - nombre : String
+    - email : String
+}
+
+class Tramite {
+    - codigo : Integer
+    - nombre : String
+    - tiempoResolucionEnDias : Integer
+    - formulariosAsociados : List<Formulario>
+    - entidadQueLoCrea : Entidad
+
+    + costoTramite(Integer valorADescontar) : Integer
+    + agregarFormulario() : void
+}
+
+class Formulario {
+    - campos : List<Campo>
+    - costoAsociado : Integer
+    - fechaAlta : LocalDate
+    - estaVencido : Boolean
+    - cantidadDeVecesRenovado : Integer
+
+    + calcularFechaDeVencimiento() : Boolean
+    + renovar() : void
+}
+
+class Campo {
+    - esObligatorio : Boolean
+    - tipoDeCampo : TipoDeCampo
+    - nombre : String
+}
+
+enum TipoDeCampo {
+    SINGLE_CHOICE,
+    MULTIPLE_CHOICE,
+    TEXTO
+}
+
+class GestorDeVencimientos {
+    - tramites : List<Tramite>
+    - emailSender : EmailSender
+
+    + formulariosDeTramiteVencidos() : List<Formulario>
+    + enviarNotificacionAResponsables() : void
+}
+
+class EmailSender {
+    + enviar(String unDestinatario, Sting unAsunto, String unCampo) : void
+}
+
+class SolicitudDeTramite {
+    - id : Integer
+    - tramite : Tramite
+    - personaQueSolicita : PersonaSolicitante
+    - formulariosRespondidos : List<RespuestaFormulario>
+    - estadoActualDeSolicitud : EstadoActualDeSolicitud
+    - historialDeSolicitud : List<HistorialDeSolicitud>
+    - posiblesEstados : List<PosibleEstado>
+
+    + cambiarEstado(EstadoDeSolicitud nuevoEstado) : void
+}
+
+class RespuestaFormulario {
+    - forumlario : Formulario
+    - respuestas : List<Respuesta>
+}
+
+class Respuesta {
+    - campo : Campo
+    - respuesta : String
+}
+
+class GestorDeSolicitudes {
+    - solicitudes : List<SolicitudDeTramite>
+    - email : EmailSender
+
+    + solicitudesEnEstadoPendienteDeRevision() : List<SolicitudDeTramite>
+    + notificarAltaDeSolicitud() : void
+}
+
+class PersonaSolicitante {
+    - nombre : String
+    - id : Integer
+    - email : String
+}
+
+enum EstadoDeSolicitud {
+    PENDIENTE_DE_REVISION,
+    EN_REVISION,
+    DIFERIDO,
+    ACEPTADO,
+    RECHAZADO
+}
+
+class EstadoActualDeSolicitud {
+    - estado : EstadoDeSolicitud
+    - motivo : String
+    - documentos : List<Documento>
+}
+
+class Documento {
+    - url : String
+}
+
+class HistorialDeSolicitud {
+    - fechaHora : LocalDateTime
+    - estadoPorElQuePaso : EstadoDeSolicitud
+    - motivo : String
+    - documentos : List<Documento>
+}
+
+class PosibleEstado {
+    - estadoPorElQuePasaria : EstadoDeSolicitud
+    - acciones : List<IAccionConfigurable>
+
+    + ejecutarLaListaDeAcciones(List<String> listaDeValores) : void
+}
+
+interface IAccionConfigurable {
+    + ejecutarAccion(List<String> listaDeValores) : void
+}
+
+class EnviarMail implements IAccionConfigurable {
+    - emailSender : EmailSender
+
+    + ejecutarAccion(List<String> listaDeValores) : void
+}
+
+class EnviarAlerta implements IAccionConfigurable {
+    + ejecutarAccion(List<String> listaDeValores) : void
+}
+
+class LlamarAPIExterna implements IAccionConfigurable {
+    - metodoElegido : MetodoHTTP
+    - uri : String
+    - mapeoJSON : List<MapeoCampoAJSON>
+
+    + ejecutarAccion(List<String> listaDeValores) : void
+    + ejecutarLlamada(MetodoHTTP unMeotodo, String uri, List<MapeoCampoAJSON> body) : void
+}
+
+enum MetodoHTTP {
+    GET,
+    POST
+}
+
+class MapeoCampoAJSON {
+    - claveJSON : String
+    - campoDeFormulario : Campo
+}
+
+
+Entidad --> Tramite : "*"
+Entidad --> ResponsableDeEntidad : "*"
+
+Tramite --> Formulario : "*"
+Tramite *-- Entidad
+
+Formulario --> Campo : "*"
+
+Campo o-- TipoDeCampo
+
+SolicitudDeTramite *-- Tramite
+SolicitudDeTramite *-- PersonaSolicitante
+SolicitudDeTramite o-- EstadoActualDeSolicitud
+SolicitudDeTramite *-- HistorialDeSolicitud
+SolicitudDeTramite o-- PosibleEstado
+SolicitudDeTramite --> RespuestaFormulario : "*"
+
+RespuestaFormulario *-- Formulario
+RespuestaFormulario --> Respuesta : "*"
+
+Respuesta *-- Campo
+
+HistorialDeSolicitud --> Documento : "*"
+
+PosibleEstado o-- EstadoDeSolicitud
+PosibleEstado --> IAccionConfigurable : "*"
+
+EnviarMail o-- EmailSender
+
+LlamarAPIExterna o-- MetodoHTTP
+LlamarAPIExterna --> MapeoCampoAJSON : "*"
+
+MapeoCampoAJSON *-- Campo
+
+EstadoActualDeSolicitud o-- EstadoDeSolicitud
+EstadoActualDeSolicitud --> Documento : "*"
+
+
+GestorDeVencimientos o-- EmailSender
+GestorDeVencimientos --> Tramite : "*"
+
+GestorDeSolicitudes --> SolicitudDeTramite : "*"
+GestorDeSolicitudes o-- EmailSender
+
+
+@enduml

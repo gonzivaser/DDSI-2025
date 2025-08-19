@@ -1,0 +1,182 @@
+@startuml
+
+class Establecimiento {
+    - nombre : String
+    - maquinas : List<Maquina>
+}
+
+class Jugador {
+    - id : Integer
+    - nombre : String
+    - tarjeta : Tarjeta
+    - email : String
+    - direccion : String
+
+    + suscribirseAMembresia() : void
+    + pagarMembresia() : void
+}
+
+class Tarjeta {
+    - id : Integer
+    - membresia : Membresia
+}
+
+class Membresia {
+    - id : Integer
+    - tipo : ITipoDeMembresia
+    - credito : Integer
+    - puntosAdquiridos : Integer
+    - fechaDeAlta : LocalDate
+    - estaDeBaja : Boolean
+
+    + darDeAlta() : void
+    + darDeBaja() : void
+    + sumarPuntos() : void
+    + descontarPuntos() : void
+    + descontarCredito() : void
+    + recargarCredito() : void
+}
+
+interface ITipoDeMembresia {
+    + realizarAlta(Membresia unaMembresia) : void
+    + sumarPuntaje(Membresia unaMembresia) : void
+    + restarCreditos(Membresia unaMembresia) : void
+}
+
+class Basica implements ITipoDeMembresia {
+    + realizarAlta(Membresia unaMembresia) : void
+    + sumarPuntaje(Membresia unaMembresia) : void
+    + restarCreditos(Membresia unaMembresia) : void
+}
+
+class Gold implements ITipoDeMembresia {
+    - valorFijoDeDescuento : Integer
+
+    + realizarAlta(Membresia unaMembresia) : void
+    + sumarPuntaje(Membresia unaMembresia) : void
+    + restarCreditos(Membresia unaMembresia) : void
+}
+
+class Plantinium implements ITipoDeMembresia {
+    - topeMaximo : Integer
+
+    + realizarAlta(Membresia unaMembresia) : void
+    + sumarPuntaje(Membresia unaMembresia) : void
+    + restarCreditos(Membresia unaMembresia) : void
+}
+
+class GestorDeMembresia {
+    - jugadores : List<Jugador>
+
+    + controlarPagosDeJugadores() : void
+    + darDeBajaTarjetas() : void
+}
+
+class Juego {
+    - id : Integer
+    - nombre : String
+    - categoria : CategoriaDeJuego
+    - costoDeCreditos : Integer
+}
+
+enum CategoriaDeJuego {
+    VIDEOJUEGOS,
+    SIMULADORES,
+    JUEGOS_DE_DESTREZA,
+    1_VS_1
+}
+
+class Maquina {
+    - id : Integer
+    - fechaFabricacion : LocalDate
+    - fechaUltimaRevision : LocalDate
+    - juego : Juego
+}
+
+class Partida {
+    - id : UUID
+    - maquina : Maquina
+    - jugador : Jugador
+    - historial : IHistorial
+
+    + puedeJugar() : Boolean
+    + ejecutarFinalizacion() : void
+}
+
+class HistorialDePartidas {
+    - id_partida : UUID
+    - jugador_id : UUID
+    - fechaHora : LocalDateTime
+    - duracionSegundos : Integer
+    - juego_id : UUID
+    - puntaje : Integer
+    - maquina_id : UUID
+}
+
+interface IHistorial {
+    + obtenerHistorial(Partida unaPartida) : HistorialDePartidas
+}
+
+class AdapterAPIJuego implements IHistorial {
+    - api : APIJuego
+
+    + obtenerHistorial(Partida unaPartida)) : HistorialDePartidas
+    + mapearResponseAHistorialDePartida() : List<ResponseAPIJuego>
+}
+
+class APIJuego {
+    - getPartida() : List<ResponseAPIJuego>
+}
+
+class ResponseAPIJuego {
+    - id_partida : UUID
+    - jugador_id : UUID
+    - fechaHora : LocalDateTime
+    - duracionSegundos : Integer
+    - juego_id : UUID
+    - puntaje : Integer
+    - maquina_id : UUID
+}
+
+class Premio {
+    - costoEnPuntos : Integer
+    - estaDisponible : Boolean
+    - envio : IEnvioPremio
+
+    + puedeCanjear(Membresia unaMembresia) : Boolean
+}
+
+interface IEnvioPremio {
+    - enviar(Premio unPremio) : void
+}
+
+class EnviosYaAPI implements IEnvioPremio {
+    - url : String
+
+    + enviar(List<RequestEnviosYa> request) : void
+    + mapearPremioARequest(Premio unPremio) : List<RequestEnviosYa>
+}
+
+class RequestEnviosYa {
+    - nombre : String
+    - tamanio : String
+    - calle : String
+    - altura : Integer
+    - referencia : String
+    - localidad : String
+    - municipio : String
+    - provinicia : String
+}
+
+class GeneradorDeReporte {
+    + generarCSV() : void
+    + obtenerTop100() : List<JugadroDestacado>
+}
+
+class JugadorDestacado {
+    - jugador : Juegador
+    - puntosMensuales : Integer
+    - promedioDuracion : Integer
+}
+
+@enduml

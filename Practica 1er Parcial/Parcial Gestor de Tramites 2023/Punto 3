@@ -1,0 +1,83 @@
+A) Permitir el alta de solicitudes de Tramite por parte de las personas solicitantes
+
+Controller >>
+crearSolicitudDeTramite(DTO datos) {
+
+    SolicitudDeTramite nuevaSol = new SolicitudDeTramite();
+
+    nuevaSol.setId(this.generarId());
+
+    Tramite tramite = this.repositorio.findById(datos.tramite.getId());
+    nuevaSol.setTramite(tramite);
+
+    PersonaSolicitante personaSol = new PersonaSolicitante();
+    nuevaSol.PersonaSolicitante.setId(datos.personaSolicitante.getId());
+    nuevaSol.PersonaSolicitante.setNombre(datos.personaSolicitante.getNombre());
+    nuevaSol.PersonaSolicitante.setEmail(datos.personaSolicitante.getEmail());
+
+
+    List<RespuestaFormulario> respuestasFormulario = new ArrayList<>();
+    for (RespuestaFormulario respuesta : datos.respuestasFormulario) {
+        Formulario form = this.repositorio.findById(respuesta.formularioId());
+
+        RespuestaFormulario respForm = new RespuestaFormulario();
+        respForm.setFormulario(formulario);
+
+        List<Respuesta> respuestas = new ArrayList<>();
+        for (Respuesta r : respuesta.respuestas) {
+            Campo campo = this.repositorio.findById(r.campoId());
+
+            Respuesta respuesta = new Respuesta();
+            respuesta.setCampo(campo);
+            respuesta.setRespuesta(r.valor);
+
+            respuestas.add(respuesta);
+        }
+
+        respuestaForm.setRespuestas(respuestas);
+        respuestasFormulario.add(respuestaForm);
+    }
+
+    nuevaSol.setFormulariosRespondidos(respuestasFormulario);
+
+
+    this.respositorioSolicitudes.save(nuevaSol);
+}
+
+
+B) Permitir el seguimiento (cambio de estados) de las solicitudes de trámites por parte de las entidades.
+
+Controller >>
+
+cambiarEstadoDeSolicitud(DTO datos) {
+    SolicitudDeTramite solicitud = this.repositorio.findById(datos.getId());
+
+    PosibleEstado estadoDestino = solicitud.getPosiblesEstados().stream().filter(pe -> pe.getEstadoPorElQuePasaria().equals(datos.nuevoEstado));
+
+    EstadoActualDeSolicitud nuevoEstado = new EstadoActualDeSolicitud();
+    nuevoEstado.setEstado(datos.nuevoEstado);
+    nuevoEstado.setMotivo(datos.motivo);
+    nuevoEstado.setDocumentos(datos.documentos);
+
+    solicitud.setEstadoActualDeSolicitud(nuevoEstado);
+
+    HistorialDeSolicitud histo = new HistorialDeSolicitud();
+    histo.setFechaHora(LocalDateTime.now());
+    histo.setEstadoPorElQuePaso(datos.nuevoEstado);
+    histo.setMotivo(datos.motivo);
+    histo.setDocumentos(datos.documentos);
+
+    solicitud.getHistorialDeSolicitud().add(histo);
+
+     List<String> valoresParaLaAccion = datos.valoresParaAcciones;
+     estadoDestino.ejecutarLaListaDeAcciones(valoresParaLaAccion);
+
+     this.repositorioSolicitudes.save(solicitud);
+}
+
+C) Permitir que las entidades configuren las acciones a ejecutar en cada estado
+
+Controller >>
+configurarAcciones(DTO datos) {
+
+}

@@ -1,0 +1,31 @@
+@startuml
+
+class Hogar {
+    - direccion : String
+    - telefono : Integer
+    - id : Integer
+    - fechaAlta : LocalDate
+    - estaEnPeligro : Boolean
+}
+
+class Evento {
+    - id : Integer
+    - fechaHora : LocalDateTime
+}
+
+class Accionador {
+    - comandos : List<IComando>
+}
+
+interface IComando {
+    + ejecutarAccion() : void
+}
+
+class SonarAlarma implements IComando {
+    + ejecutarAccion() : void
+}
+
+
+
+
+@enduml
