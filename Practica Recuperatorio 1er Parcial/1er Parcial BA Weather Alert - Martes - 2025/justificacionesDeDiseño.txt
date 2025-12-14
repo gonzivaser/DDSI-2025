@@ -1,0 +1,32 @@
+"Permitir recibir eventos climáticos desde el servicio Clima Proxy mediante webhooks por tópico."
+Lo que hice aca fue hacer una clase procesadorDeEventos que es la encargada de recibir el evento por webhook y traspasarlo a un
+Evento de nuestro dominio. Esta clase va a tener una lista de acciones que puede hacer respecto a la llegada de un evento.
+Hice uso del patron strategy en este caso ya que cada accion es un comportamiento diferente, y segun el evento que llega, podes accionar de distintas maneras, en distintos ordenes.
+
+"Consultar domicilios de ciudadanos a través del servicio ya desarrollado de Ciudadanos y Domicilios."
+Aca en la implementacion de las clases de recomendador y enviarAlerta, fueron la que consultan el servicio de ciudadanos, a traves de
+un adapter, obtienen los domicilios y ciudadanos afectados.
+
+"Generar recomendaciones personalizadas 24 horas antes de eventos climáticos."
+"Consultar a una API externa (GPT-invierno) para enriquecer el contenido de las recomendaciones."
+Lo que hice fue a traves del recibimiento de un evento, consulto el servicio de ciudadanos haciendo uso del patron adapter, para obtener
+los domicilios afectados. Una vez obtenido estos domicilios, vuelvo a hacer uso del patron adapter, para enriquecer el texto de la Recomendacion, pasandole a
+la API de GPT4, el tipo de evento, los tipos de construccion y si tienen instalaciones sensibles, donde este me devuelve el texto enriquecido, y con esto
+genero la recomendacion.
+
+"Enviar alertas por webhook a organismos externos en caso de alertas extremas."
+Implemento la clase de AlertarOrganismos que tiene una lista de organismos, y cada organismo tiene su callback, que es la que dejo cuando se
+suscribio por webhook a nustro servicio.
+
+"Integrar el servicio de Estaciones Inteligentes para recibir datos en tiempo real y activar alarmas."
+Hice uso de un Adapter para obtener la estacion cercana mas inteligente, y una vez obtenida la estacion mas cercana, se hace la request
+como marca la consigna, haciendo un POST, en el metodo de generarAlarmaEn(Estacion) y devuelve la AlarmaGenerada.
+
+"Integrar el servicio de Estaciones Inteligentes para recibir datos en tiempo real y activar alarmas."
+"Permitir a administradores gestionar las preguntas del feedback."
+En el otro microservicio, hice uso del modelo de preguntas. No hay mucho para decir aca..
+
+"Exponer información relevante al microservicio de Estadísticas."
+El exponer se va a encontrar en la capa de controladores, donde se van a exponer los endpoints de cada microservicio, y el servicio de estadisticas se encargara
+de recoletar la informacion que necesite del servicio de feedback y alertas y generara sus propias estadisticas, pero los endpoints no fue algo que modele ya que
+no se encuentra en la capa de dominio, sino que en la de controladores.

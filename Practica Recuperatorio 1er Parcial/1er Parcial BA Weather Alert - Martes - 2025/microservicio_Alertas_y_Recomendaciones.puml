@@ -1,0 +1,237 @@
+@startuml
+
+class Evento {
+    - tipoEvento : TipoDeEvento
+    - fechaInicio : LocalDate
+    - fechaFin : LocalDate
+    - nivelSeriedad : NivelDeSeriedad
+    - zonasAfectadas : List<Zona>
+}
+
+enum TipoDeEvento {
+    NEVADA,
+    HELADA,
+    TORMENTA
+}
+
+enum NivelDeSeriedad {
+    ALTA,
+    CRITICA,
+    EXTREMA
+}
+
+class Zona {
+    - barrio : String
+    - latitud : Long
+    - longitud : Long
+    - radio_km : Long
+}
+
+class CiudadanoAfectado {
+    - nombre : String
+    - email : String
+    - DNI : String
+    - direcciones : List<Direccion>
+}
+
+class Direccion {
+    - ubicacion : Coordenada
+    - esPrincipal : Boolean
+    - tipoConstruccion : String
+    - tieneInstalacionesSensibles : Boolean
+}
+
+class Coordenada {
+    - latitud : Long
+    - longitud : Long
+}
+
+class ProcesadorDeEventos {
+    - acciones : List<IAccionador>
+
+    + procesarEvento(EventoDTO) : Evento
+    + accionarRespectoA(Evento) : void
+}
+
+interface IAccionador {
+    + accionarA(Evento) : void
+}
+
+class Recomendador implements IAccionador {
+    - gestor : IAdapterServicioCiudadanos
+    - enriquecedor : IAdapterGPT4
+
+    + accionarA(Evento) : void
+    + obtenerDomiciliosAfectados() : List<Direccion>
+    + enriquecerTipoDeEvento, tipoDeConstruccion, tieneInstalacionesSensibles) : String
+    + generarRecomendacion() : Recomendacion
+}
+
+class Recomendacion {
+    - evento : Evento
+    - texto : String
+}
+
+interface IAdapterServicioCiudadanos {
+    + obtenerCiudadanosAfectados(latitud, longitud, radio_km) : List<CiudadanoAfectado>
+    + obtenerDomiciliosAfectados(latitud, longitud, radio_km) : List<Direccion>
+}
+
+class AdapterServicioCiudadanos implements IAdapterServicioCiudadanos {
+    - api : APIServicioCiudadanos
+
+    + obtenerCiudadanosAfectados(latitud, longitud, radio_km) : List<CiudadanoAfectado>
+    + obtenerDomiciliosAfectados(latitud, longitud, radio_km) : List<Direccion>
+}
+
+class APIServicioCiudadanos {
+    - url : String
+
+    + obtenerCiudadanos(latitud, longitud, radio_km) : List<String>
+    + obtenerDomicilios(latitud, longitud, radio_km) : List<String>
+}
+
+interface IAdapterGPT4 {
+    + enriquecerTextoDe(TipoDeEvento, tipoDeConstruccion, tieneInstalacionesSensibles) : String
+}
+
+class AdapterGPT4 implements IAdapterGPT4 {
+    - api : APIGPT4
+
+    + enriquecerTextoDe(TipoDeEvento, tipoDeConstruccion, tieneInstalacionesSensibles) : String
+}
+
+class APIGPT4 {
+    - url : String
+
+    + mejorar(TipoDeEvento, tipoDeConstruccion, tieneInstalacionesSensibles) : List<String>
+}
+
+class EnviarAlerta implements IAccionador {
+    - notificador : Notificador
+    - gestor : IAdapterServicioCiudadanos
+
+    + accionarA(Evento) : void
+    + obtenerCiudadanosCercaDe(latitud, longitud, radio_km) : List<CiudadanoAfectado>
+    + enviarNotificacionA(CiudadanosAfectados, mensaje) : void
+}
+
+class Notificador {
+    - estrategias : List<IEstrategiaDeNotificacion>
+
+    + notificar(mensaje, destinatario) : void
+}
+
+interface IEstrategiaDeNotificacion {
+    + enviar(mensaje, destinatario) : void
+}
+
+class NotificacionPush implements IEstrategiaDeNotificacion {
+    + enviar(mensaje, destinatario) : void
+}
+
+class NotificacionEmail implements IEstrategiaDeNotificacion {
+    + enviar(mensaje, destinatario) : void
+}
+
+class AlertarOrganismos implements IAccionador {
+    - organismos : List<Organismo>
+
+    + accionarA(Evento) : void
+}
+
+class Organismo {
+    + callback : String
+
+    + alertarEmergenciaDe(Evento) : void
+}
+
+class ActivarAlarmaFisica implements IAccionador {
+    + gestor : IAdapterServicioDeEstaciones
+
+    + accionarA(Evento) : void
+    + obtenerEstacionCercanaA(latitud, longitud, radio_km) : Estacion
+    + generarAlarmaEn(Estacion) : AlarmaGenerada
+}
+
+class AlarmaGenerada {
+    - nivel : NivelDeAlarma
+    - duracion_segundos : Long
+    - componentes : List<Componente>
+}
+
+enum NivelDeAlarma {
+    PREVENTIVO,
+    ADVERTENCIA,
+    CRITICO
+}
+
+class Componente {
+    - nombre : String
+}
+
+class Estacion {
+    - id : Long
+    - nombre : String
+    - coordenadas : Coordenada
+}
+
+interface IAdapterServicioDeEstaciones {
+    + obtenerEstacionMasCercanaDe(latitud, longitud, radio_km) : Estacion
+}
+
+class AdapterServicioDeEstaciones implements IAdapterServicioDeEstaciones {
+    - api : APIServicioDeEstaciones
+
+    + obtenerEstacionMasCercanaDe(latitud, longitud, radio_km) : Estacion
+}
+
+class APIServicioDeEstaciones {
+    - url : String
+
+    + obtenerEstacionCercaDe(latitud, longitud, radio_km) : List<String>
+}
+
+Evento --> "*" Zona
+
+NivelDeSeriedad --o Evento
+
+TipoDeEvento --o Evento
+
+CiudadanoAfectado --> "*" Direccion
+
+Direccion --> Coordenada
+
+ProcesadorDeEventos ..> Evento
+ProcesadorDeEventos --> "*" IAccionador
+
+AdapterServicioCiudadanos --> APIServicioCiudadanos
+
+Recomendador --> IAdapterServicioCiudadanos
+Recomendador --> IAdapterGPT4
+Recomendador ..> Recomendacion
+Recomendador ..> "*" Direccion
+
+AdapterGPT4 --> APIGPT4
+
+Notificador --> "*" IEstrategiaDeNotificacion
+
+EnviarAlerta --> Notificador
+EnviarAlerta --> IAdapterServicioCiudadanos
+EnviarAlerta ..> "*" CiudadanoAfectado
+
+AlertarOrganismos --> "*" Organismo
+
+NivelDeAlarma --o AlarmaGenerada
+
+AlarmaGenerada --> "*" Componente
+
+Estacion --> Coordenada
+
+AdapterServicioDeEstaciones --> APIServicioDeEstaciones
+
+ActivarAlarmaFisica --> IAdapterServicioDeEstaciones
+ActivarAlarmaFisica ..> Estacion
+ActivarAlarmaFisica ..> AlarmaGenerada
+
+@enduml

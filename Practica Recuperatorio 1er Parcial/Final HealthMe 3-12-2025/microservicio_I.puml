@@ -1,0 +1,97 @@
+@startuml
+
+class Persona {
+    - nombre : String
+    - apellido : String
+    - edad : Long
+    - peso_kg : Long
+    - altura_cm : Long
+    - actividadesDeOcio : List<ActividadDeOcio>
+    - realizaActividadFisica : Boolean
+    - objetivos : List<Objetivo>
+    - direccion : Direccion
+}
+
+class Objetivo {
+    - nombre : String
+    - prioridad : String
+    - fechaInicio : LocalDate
+    - dimensionAFortalecer : Dimension
+}
+
+class Direccion {
+    - calle : String
+    - piso : Long
+    - altura : String
+    - latitud : Long
+    - longitud : Long
+    - barrio : String
+}
+
+enum Dimension {
+    CUIDADO_PERSONAL_ANIMICO,
+    SALUD_FISICA
+}
+
+class ActividadDeOcio {
+    - nombre : String
+    - descripcion : String
+}
+
+class FormularioRespondido {
+    - persona : Persona
+    - formulario : Formulario
+    - respuestas : List<Respuesta>
+}
+
+class Formulario {
+    - preguntas : List<Pregunta>
+}
+
+class Respuesta {
+    - pregunta : Pregunta
+    - valorTexto : String
+    - opcionesChoice : List<Opcion>
+}
+
+class Pregunta {
+    - titulo : String
+    - tipoDePregunta : TipoDePregunta
+    - opciones : List<Opcion>
+    - esObligatoria : Boolean
+}
+
+class Opcion {
+    - valorTexto : String
+}
+
+enum TipoDePregunta {
+    MULTIPLE_CHOICE,
+    SINGLE_CHOICE
+}
+
+Persona --> "*" ActividadDeOcio
+Persona --> "*" Objetivo
+Persona --> Direccion
+
+Dimension --o Objetivo
+
+FormularioRespondido --> Persona
+FormularioRespondido --> Formulario
+FormularioRespondido --> "*" Respuesta
+
+Formulario --> "*" Pregunta
+
+Pregunta --> "*" Opcion
+
+TipoDePregunta --o Pregunta
+
+Respuesta --> Pregunta
+Respuesta --> "*" Opcion
+
+
+
+
+
+
+@enduml

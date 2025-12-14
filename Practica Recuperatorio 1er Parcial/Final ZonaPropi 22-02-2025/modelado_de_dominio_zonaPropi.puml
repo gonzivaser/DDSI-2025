@@ -1,0 +1,313 @@
+@startuml
+
+class Propiedad {
+    - ubicacion : Ubicacion
+    - caracteristicas : CaracteristicaGeneral
+    - detalleAdicional : DetalleAdicional
+    - precios : List<Precio>
+    - multimedia : List<Multimedia>
+    - historialModificaciones : List<HistorialModificaciones>
+    - estaDeBaja : Boolean
+}
+
+class Ubicacion {
+    - direccion : Direccion
+    - barrio : String
+    - ciudad : String
+    - provincia : String
+}
+
+class Direccion {
+    - calle : String
+    - piso : Long
+    - altura : Long
+    - latitud : Long
+    - longitud : Long
+}
+
+class CaracteristicaGeneral {
+    - tipoDePropiedad : TipoDePropiedad
+    - cantAmbientes : Long
+    - cantBanios : Long
+    - cantDormitorios : Long
+    - metrosCubiertos_m2 : Long
+    - metrosTotales_m2 : Long
+}
+
+class TipoDePropiedad {
+    - nombre : String
+}
+
+class DetalleAdicional {
+    - antiguedad : Long
+    - estado : EstadoDePropiedad
+    - aceptaMascotas : Boolean
+    - cantidadCocheras : Long
+}
+
+enum EstadoDePropiedad {
+    A_ESTRENAR,
+    USADA,
+    EN_CONSTRUCCION
+}
+
+class Precio {
+    - moneda : Moneda
+    - esNegociable : Boolean
+    - valor : Long
+}
+
+enum Moneda {
+    ARS,
+    USD
+}
+
+class Multimedia {
+    - url : String
+}
+
+class HistorialModificaciones {
+    - fechaHora : LocalDateTime
+    - precio : Precio
+}
+
+abstract class Usuario {
+    - nombre : String
+    - email : String
+    - telefono : String
+    - plan : Plan
+    - publicaciones : List<Publicacion>
+
+    + accederAPlan() : void
+}
+
+class Particular extends Usuario {
+    - apellido : String
+    - DNI : String
+}
+
+class Inmobiliaria extends Usuario {
+    - CUIT : String
+    - representanteLegal : RepresentanteLegal
+}
+
+class RepresentanteLegal {
+    - nombre : String
+    - apellido : String
+    - telefono : Long
+    - matricula : String
+}
+
+class Plan {
+    - plan : TipoDePlan
+    - maxPublicaciones : Long
+    - horasTotalesVisibilidad : Long
+    - cantidadPublicacionesPermitidas : Long
+    - periodoDeMuestraParteSuperior : Long
+}
+
+enum TipoDePlan {
+    GRATUITO,
+    DESTACADO,
+    PREMIUM
+}
+
+class Suscripcion {
+    - fechaInicio : LocalDate
+    - fechaFin : LocalDate
+    - estado : EstadoSuscripcion
+    - planContratado : Plan
+
+    + calcularHorasRestantes() : Long
+}
+
+enum EstadoSuscripcion {
+    ACTIVA,
+    PENDIENTE_PAGO,
+    FINALIZADA
+}
+
+class Publicacion {
+    - tipoDeOperacion : TipoDeOperacion
+    - propiedad : Propiedad
+    - descripcion : String
+    - precio : Precio
+    - multimedia : List<Multimedia>
+    - tags : List<Tag>
+    - estadoDePublicacion : EstadoDePublicacion
+    - estaVerificadoElContenido : Boolean
+    - intervalorDeVisibilidad : IntervaloDeVisibilidad
+}
+
+class IntervaloDeVisibilidad {
+    - fechaInicio : LocalDateTime
+    - fechaFin : LocalDateTime
+}
+
+enum TipoDeOperacion {
+    VENTA,
+    ALQUILER,
+    ALQUILER_TEMPORARIO
+}
+
+class Tag {
+    - nombre : String
+}
+
+enum EstadoDePublicacion {
+    ACTIVA,
+    PAUSADA,
+    PENDIENTE_REVISION,
+    FINALIZADA
+}
+
+
+
+class Consulta {
+    - publicacion : Publicacion
+    - formularioRespondido : Formulario
+    - estadoDeConsulta : EstadoDeConsulta
+}
+
+enum EstadoDeConsulta {
+    RESPONDIDA,
+    ARCHIVADA
+}
+
+class Formulario {
+    - nombreInteresado : String
+    - apellidoInteresado : String
+    - emailInteresado : String
+    - telefonoInteresado : Long
+    - mensajeConsulta : String
+    - fechaHoraConsulta : LocalDateTime
+}
+
+
+class GestorDeVencimientos {
+    - publicaciones : List<Publicacion>
+    - cantidadHorasTotalesPorPublicacion : Long
+
+    + gestionarVencimientos() : void
+}
+
+interface IPagosAdapter {
+    + pagarPlan(monto, medioDePago, callback) : Pago
+}
+
+class AdapterGeoPagos implements IPagosAdapter {
+    - api : APIGeoPagos
+
+    + pagarPlan(monto, medioDePago, callback) : Pago
+}
+
+class APIGeoPagos {
+    - url : String
+
+    + pagar(monto, medioDePago, callback) : List<String>
+}
+
+class Pago {
+    - medioDePago : String
+    - usuario : Usuario
+    - estadoDePago : EstadoDePago
+}
+
+enum EstadoDePago {
+    APROBADA,
+    RECHAZADA
+}
+
+
+class VerificadorDeContenido {
+    - verificador : IAdapterOpenAI
+
+    + verificar(Publicacion) : RespuestaOpenAI
+    + gestionarModeracionDe(Publicacion) : Boolean
+}
+
+interface IAdapterOpenAI {
+    + verificarContenidoDe(Publicacion) : RespuestaOpenAI
+}
+
+class AdapterOpenAI implements IAdapterOpenAI {
+    - api : APIOpenAI
+
+    + verificarContenidoDe(Publicacion) : RespuestaOpenAI
+}
+
+class APIOpenAI {
+    - url : String
+
+    + analizar(Publicacion) : List<String>
+}
+
+class RespuestaOpenAI {
+    - calidad_contenido : String
+    - palabras_ofensivas : Long
+    - publicidad_engañosa : String
+}
+
+
+Propiedad --> Ubicacion
+Propiedad --> CaracteristicaGeneral
+Propiedad --> DetalleAdicional
+Propiedad --> "*" Precio
+Propiedad --> "*" Multimedia
+Propiedad --> "*" HistorialModificaciones
+
+Ubicacion --> Direccion
+
+CaracteristicaGeneral --> TipoDePropiedad
+
+EstadoDePropiedad --o DetalleAdicional
+
+Moneda --o Precio
+
+HistorialModificaciones --> Precio
+
+TipoDeOperacion --o Publicacion
+Publicacion --> Propiedad
+Publicacion --> "*" Multimedia
+Publicacion --> "*" Tag
+EstadoDePublicacion o-- Publicacion
+Publicacion --> IntervaloDeVisibilidad
+
+Usuario --> "*" Publicacion
+Usuario --> Plan
+
+Inmobiliaria --> RepresentanteLegal
+
+
+EstadoDePago --o Pago
+
+Consulta --> Publicacion
+Consulta --> Formulario
+EstadoDeConsulta --o Consulta
+
+Pago --> Usuario
+
+EstadoSuscripcion --o Suscripcion
+Suscripcion --> Plan
+
+GestorDeVencimientos --> "*" Publicacion
+
+VerificadorDeContenido --> IAdapterOpenAI
+VerificadorDeContenido ..> Publicacion
+VerificadorDeContenido ..> RespuestaOpenAI
+
+AdapterOpenAI --> APIOpenAI
+
+
+AdapterGeoPagos --> APIGeoPagos
+IPagosAdapter ..> Pago
+
+TipoDePlan --o Plan
+
+
+
+
+
+
+
+@enduml

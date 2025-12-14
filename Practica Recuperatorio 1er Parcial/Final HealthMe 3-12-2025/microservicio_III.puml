@@ -1,0 +1,89 @@
+@startuml
+
+class Profesional {
+    - datosPersonales : DatosPersonales
+    - profesion : TipoDeProfesion
+    - matricula : MatriculaDeProfesional
+    - direccionConsultorio : Direccion
+    - email : String
+    - modalidadDeAtencion : ModalidadDeAtencion
+}
+
+enum TipoDeProfesion {
+    PSICOLOGO,
+    PSIQUIATRA,
+    NUTRICIONISTA,
+    MEDICO_CLINICO,
+    PREPARADOR_FISICO
+}
+
+class DatosPersonales {
+    - nombre : String
+    - apellido : String
+    - DNI : String
+    - telefonoPersonal : Long
+}
+
+class MatriculaDeProfesional {
+    - claveMatricula : String
+    - validacionDeMatricula : MatriculaValidada
+}
+
+class Direccion {
+    - calle : String
+    - piso : Long
+    - altura : String
+    - latitud : Long
+    - longitud : Long
+    - barrio : String
+}
+
+enum ModalidadDeAtencion {
+    PRESENCIAL,
+    VIRTUAL
+}
+
+class ValidadorDeMatriculas {
+    - validador : IAdapterMinisterioDeSalud
+
+    + validar(MatriculaDeProfesional) : MatriculaValidada
+}
+
+class MatriculaValidada {
+    - esValida : Boolean
+    - fechaValidez : LocalDate
+}
+
+interface IAdapterMinisterioDeSalud {
+    + realizarValidacion(String claveMatricula) : MatriculaValidada
+}
+
+class AdapterAPIMinisterioDeSalud implements IAdapterMinisterioDeSalud {
+    - api : APIMinisterioDeSalud
+
+    + realizarValidacion(String claveMatricula) : MatriculaValidada
+}
+
+class APIMinisterioDeSalud {
+    - url : String
+
+    + verificar(String claveMatricula) : List<String>
+}
+
+Profesional --> DatosPersonales
+Profesional --> MatriculaDeProfesional
+Profesional --> Direccion
+
+ModalidadDeAtencion --o Profesional
+
+ValidadorDeMatriculas --> IAdapterMinisterioDeSalud
+ValidadorDeMatriculas ..> MatriculaValidada
+ValidadorDeMatriculas ..> MatriculaDeProfesional
+
+MatriculaDeProfesional --> MatriculaValidada
+
+AdapterAPIMinisterioDeSalud --> APIMinisterioDeSalud
+
+TipoDeProfesion --o Profesional
+
+@enduml

@@ -1,0 +1,280 @@
+@startuml
+
+class PersonaSolidaria {
+    - nombre : String
+    - apellido : String
+    - medioDeContacto : MedioDeContacto
+    - fechaNacimiento : LocalDate
+    - direccion : Direccion
+    - formasDeColaborar : List<FormaDeColaborar>
+}
+
+class FormaDeColaborar {
+    - tipoDeForma : TipoDeForma
+    - frecuenciaEstimada : FrecuenciaEstimada
+    - montoAproximado : Long
+    - vehiculo : Vehiculo
+    - viandasAEntregar : List<Vianda>
+
+    + cantidadDeViandasAEntregar() : Long
+}
+
+enum FrecuenciaEstimada {
+    POR_DIA,
+    POR_HORA,
+    POR_SEMANA,
+    POR_MES
+}
+
+class Vehiculo {
+    - patente : String
+    - capacidadCarga_m3 : Long
+    - capacidadCarga_kg : Long
+    - localizacion : Coordenadas
+    - radioAccion : Long
+}
+
+class Vianda {
+    - descripcion : String
+}
+
+class Coordenadas {
+    - latitud : Long
+    - longitud : Long
+}
+
+enum TipoDeForma {
+    DONACION_DINERO,
+    DISTRIBUCION_VIANDA,
+    DONACION_COMIDA
+}
+
+class Direccion {
+    - calle : String
+    - altura : Long
+    - piso : Long
+    - latitud : Long
+    - longitud : Long
+}
+
+class MedioDeContacto {
+    - medio : TipoDeMedio
+    - email : String
+    - telefono : Long
+    - whatsapp : Long
+}
+
+enum TipoDeMedio {
+    CORREO,
+    TELEFONO,
+    WHATSAPP
+}
+
+class Heladera {
+    - puntoEstrategico : PuntoEstrategico
+    - dispenserDeViandas : DispenserDeViandas
+    - stockActual : Stock
+    - historialStock : List<HistorialStock>
+    - temperaturaActual : Temperatura
+    - umbralDeStock : Long
+    - estadoDeHeladera : EstadoDeHeladera
+
+    + puedeAbrir(Tarjeta) : Boolean
+}
+
+enum EstadoDeHeladera {
+    EN_REPARACION,
+    ACTIVA
+}
+
+class Temperatura {
+    - tempActual_celsius : Long
+}
+
+class Stock {
+    - viandas : List<Vianda>
+
+    + cantidadDeViandas() : Long
+}
+
+class HistorialStock {
+    - fechaHora : LocalDateTime
+    - tipoDeActualizacion : TipoDeActualizacion
+    - stockModificado : Stock
+}
+
+enum TipoDeActualizacion {
+    DEPOSITO,
+    RETIRO
+}
+
+class PuntoEstrategico {
+    - coordenadas : Coordenadas
+    - nombre : String
+}
+
+class DispenserDeViandas {
+    - capacidadDeterminada_unidades : Long
+}
+
+class Repartidor {
+    - nombre : String
+    - apellido : String
+    - medioDeContacto : MedioDeContacto
+    - heladerasAsignadas : List<Heladera>
+    - tajertaRFID : Tarjeta
+    - faltaStockAsignada : FaltaStock
+}
+
+class Tecnico {
+    - nombre : String
+    - apellido : String
+    - medioDeContacto : MedioDeContacto
+    - heladeraAsignada : Heladera
+}
+
+class Tarjeta {
+    - codigo : Long
+
+    + fueUsada(hoy LocalDate) : Boolean
+    + cantidadDeVecesUsada(hoy LocalDate) : Long
+}
+
+class PersonaDeBajosRecursos {
+    - nombre : String
+    - apellido : String
+    - DNI : String
+    - tarjetaPlastica : Tarjeta
+}
+
+class AsignadorDePuntosEstrategicos {
+    - asignador : IAdapterAPIExterna
+
+    + determinarUbicacionesDeHeladerasEn(latitud, longitud, radio) : List<PuntoEstrategico>
+}
+
+interface IAdapterAPIExterna {
+    + buscarMejorUbicacionPara(latitud, longitud, radio) : List<PuntoEstrategico>
+}
+
+class AdapterAPIExterna implements IAdapterAPIExterna {
+    - api : APIExterna
+
+    + buscarMejorUbicacionPara(latitud, longitud, radio) : List<PuntoEstrategico>
+}
+
+class APIExterna {
+    - url : String
+
+    + mejoresUbicaciones(latitud, longitud, radio) : List<String>
+}
+
+class Notificador {
+    - estrategias : List<IEstrategiaDeNotificacion>
+
+    + enviarNotificacion(destinatario, String mensaje) : void
+}
+
+interface IEstrategiaDeNotificacion {
+    + enviar(destinatario, mensaje) : void
+}
+
+class NotificarTecnico implements IEstrategiaDeNotificacion {
+    + enviar(destinatario, mensaje) : void
+}
+
+class NotificarRepartidor implements IEstrategiaDeNotificacion {
+    + enviar(destinatario, mensaje) : void
+}
+
+class ReceptorTemperatura {
+    + procesarTemperaturaDe(TemperaturaDTO) : Temperatura
+}
+
+class ProcesadorDeEventos {
+    - notificador : Notificador
+
+    + procesarUnaAlerta(AlarmaDTO) : Alarma
+    + procesarUnaFalta(FaltaStockDTO) : FaltaStock
+    + accionar() : void
+}
+
+class Alarma {
+    - fechaHora : LocalDateTime
+    - heladeraAsociada : Heladera
+    - temperaturaMinima : Long
+    - temperaturaMaxima : Long
+}
+
+class FaltaStock {
+    - estado : EstadoDeFaltaStock
+    - heladeraAsociada : Heladera
+}
+
+enum EstadoDeFaltaStock {
+    PENDIENTE,
+    ASIGNADA,
+    RESPUESTO
+}
+
+
+
+PersonaSolidaria --> Direccion
+PersonaSolidaria --> MedioDeContacto
+PersonaSolidaria --> "*" FormaDeColaborar
+
+TipoDeMedio --o MedioDeContacto
+
+TipoDeForma --o FormaDeColaborar
+
+FrecuenciaEstimada --o FormaDeColaborar
+
+FormaDeColaborar --> Vehiculo
+FormaDeColaborar --> "*" Vianda
+
+Vehiculo --> Coordenadas
+
+Heladera --> PuntoEstrategico
+Heladera --> DispenserDeViandas
+Heladera --> Stock
+Heladera --> "*" HistorialStock
+Heladera --> Temperatura
+
+ReceptorTemperatura ..> Temperatura
+
+HistorialStock --> Stock
+
+TipoDeActualizacion --o HistorialStock
+
+Repartidor --> MedioDeContacto
+Repartidor --> "*" Heladera
+Repartidor --> Tarjeta
+Repartidor --> FaltaStock
+
+Tecnico --> MedioDeContacto
+Tecnico --> Heladera
+
+PuntoEstrategico --> Coordenadas
+
+PersonaDeBajosRecursos --> Tarjeta
+
+AsignadorDePuntosEstrategicos --> IAdapterAPIExterna
+AsignadorDePuntosEstrategicos ..> PuntoEstrategico
+
+AdapterAPIExterna --> APIExterna
+
+Notificador --> "*" IEstrategiaDeNotificacion
+
+ProcesadorDeEventos --> Notificador
+ProcesadorDeEventos ..> Alarma
+ProcesadorDeEventos ..> FaltaStock
+
+
+Alarma --> Heladera
+FaltaStock --> Heladera
+
+EstadoDeFaltaStock --o FaltaStock
+
+EstadoDeHeladera --o Heladera
+
+@enduml

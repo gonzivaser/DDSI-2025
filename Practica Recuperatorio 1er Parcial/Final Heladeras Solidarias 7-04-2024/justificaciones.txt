@@ -1,0 +1,37 @@
+Paso a justificar las decisiones de diseño tomadas con respecto a los requerimientos pedidos:
+
+"El registro de toda persona que desee formar parte de esta comunidad."
+Lo que hice fue modelar a la clase PersonaSolidaria que tenga todos los atributos pedidos, sumandole las formas de colaborar que tiene.
+Esto directamente lo modele como una clase, y no hice uso de un patron Strategy, porque no habia comportamiento distinto entre las formas de colaborar,
+solo era los diferentes atributos que se necesitaban.
+
+"La correcta gestión de las heladeras que están distribuidas en la Ciudad."
+Cree la clase Heladera, donde tiene como atributo un PuntoEstrategico que este tiene coordenadas y el nomrbre como habia especificado la consigna.
+
+"La comunicación con las heladeras para monitorizar la temperatura de las mismas."
+Hice la clase ReceptorTemperatura, que lo que hace es recibir el objeto TemperaturaDTO, y a traves del metodo de procesarTemperatura, lo convierto a una clase de
+Temperatura de mi dominio, y se lo asigno a mi Heladera. Asumi que esta informacion, llegaba cada 5 minutos por webhook, y por eso no hago uso de un cronjob.
+
+
+"El alta, baja y/o modificación de técnicos."
+Aca lo que hice fue poner como atributo a la Heladera, un EstadoDeHeladera que es un enum, que representa si la heladera esta activa o en reparacion.
+El Tecnico va a recibir la alerta por el telefono, y va a ser el responsable de arreglar la heladera y modificar el atributo de estado de esta.
+
+"La visualización de las alarmas que se activan por diferencias de temperaturas en las heladeras."
+"La visualización de las notificaciones por “falta de stock” en las heladeras."
+"La comunicación con los responsables ante la recepción de las alarmas y notificaciones (técnicos y
+ repartidores)."
+Aca lo que hice fue un procesadorDeEventos que tiene los metodos de procesarAlarma y procesarFaltaStock. Ambos reciben un DTO y lo convierten a nuestro dominio.
+Una vez hecho eso, el procesador es el encargado de notifiacar a los responsables, tanto un repartidor como un tecnico.
+En este caso aplique el uso de un patron strategy, ya que la notificacion tiene dos comportamientos distintos, uno es una alerta y lo otro puede ser una notifiacion,
+por mail, whatsapp, etc.
+
+"La visualización de los puntos de colocación sugeridos de las heladeras."
+Aca lo que hice fue una clase de AsignadorDePuntosEstrategicos, donde hago uso de un Adapter para recibir obtener la lista de la recomendacion de puntos estrategicos, para las heladeras.
+
+"Asegurar Trazabilidad y auditoría en el manejo de las diferentes tarjetas"
+"El registro de stock actualizado de viandas que posee cada heladera, con su correcta trazabilidad."
+Realice una clase Tarjeta, donde tanto un repartidor como una persona de bajos recursos la tiene. Ambas tienen su correcta trazabilidad, con los metodos correspondientes
+para asegurarla.
+
+

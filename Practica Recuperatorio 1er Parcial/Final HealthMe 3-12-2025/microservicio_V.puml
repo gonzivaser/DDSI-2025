@@ -1,0 +1,114 @@
+@startuml
+
+class Interesado {
+    - nombre : String
+    - apellido : String
+    - telefono : Long
+    - direccion : Direccion
+    - objetivos : List<Objetivo>
+}
+
+class Objetivo {
+    - nombre : String
+    - prioridad : String
+    - fechaInicio : LocalDate
+    - dimensionAFortalecer : Dimension
+}
+
+enum Dimension {
+    CUIDADO_PERSONAL_ANIMICO,
+    SALUD_FISICA
+}
+
+class Profesional {
+    - nombre : String
+    - apellido : String
+    - telefono : Long
+    - direccionConsultorio : Direccion
+    - profesion : TipoDeProfesion
+}
+
+enum TipoDeProfesion {
+    PSICOLOGO,
+    PSIQUIATRA,
+    NUTRICIONISTA,
+    MEDICO_CLINICO,
+    PREPARADOR_FISICO
+}
+
+class Direccion {
+    - calle : String
+    - piso : Long
+    - altura : String
+    - latitud : Long
+    - longitud : Long
+    - barrio : String
+}
+
+class Asignador {
+   - criterio : ICriterioDeAsignacion
+
+   + procesarInteresado(InteresadoDTO) : Interesado
+   + asignarProfesionalesA(Interesado) : List<Opcion>
+}
+
+interface ICriterioDeAsignacion {
+    + otorgarOpcionesPosiblesA(Interesado) : List<Opcion>
+}
+
+class CriterioDeCercania implements ICriterioDeAsignacion {
+    - profesionales : IAdapterServicioProfesionales
+
+    + otorgarOpcionesPosiblesA(Interesado) : List<Opcion>
+    + buscarProfesionalesPara(Interesado) : List<Opcion>
+}
+
+interface IAdapterServicioProfesionales {
+    + obtenerProfesionalesCercaDe(latitud, longitud) : List<Profesional>
+    + obtenerProfesionalesPara(List<Objetivo>) : List<Profesional>
+}
+
+class AdapterAPIServicioProfesionales implements IAdapterServicioProfesionales {
+    - api : APIServicioProfesionales
+
+    + obtenerProfesionalesCercaDe(latitud, longitud) : List<Profesional>
+    + obtenerProfesionalesPara(List<Objetivo>) : List<Profesional>
+}
+
+class APIServicioProfesionales {
+    - url : String
+
+    + getProfesionalesCercaDe(latitud, longitud) : List<String>
+    + getProfesionalesPara(List<Objetivo>) : List<String>
+}
+
+class Opcion {
+    - profesionalSeleccionado : Profesional
+    - estaAceptada : Boolean
+}
+
+
+Interesado --> Direccion
+Interesado --> "*" Objetivo
+
+Dimension --o Interesado
+
+Profesional --> Direccion
+
+TipoDeProfesion --o Profesional
+
+Asignador --> ICriterioDeAsignacion
+Asignador ..> Interesado
+Asignador ..> Opcion
+
+CriterioDeCercania --> IAdapterServicioProfesionales
+CriterioDeCercania ..> Opcion
+
+IAdapterServicioProfesionales ..> Profesional
+IAdapterServicioProfesionales ..> Objetivo
+
+AdapterAPIServicioProfesionales --> APIServicioProfesionales
+
+Opcion --> Profesional
+
+@enduml
